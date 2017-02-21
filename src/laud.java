@@ -1,8 +1,13 @@
+import javafx.scene.input.MouseEvent;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
+
+
 
 /**
  * Created by Lenovo on 27.01.2017.
@@ -15,6 +20,7 @@ public class laud implements ActionListener {
     Container grid = new Container();
     final int MIIN = 10;
 
+    //konstruktor
     public laud() {
         frame.setSize(600, 600); //kogu raam, mis avaneb
         frame.setLayout(new BorderLayout());
@@ -25,7 +31,8 @@ public class laud implements ActionListener {
         for (int a = 0; a < buttons.length; a++) {
             for (int b = 0; b < buttons.length; b++) {
                 buttons[a][b] = new JButton();
-                buttons[a][b].addActionListener(this); //tegevus siduda nuppudega
+                buttons[a][b].addActionListener(this);
+                buttons[a][b].addMouseListener(new MouseListKK());  //tegevus siduda nuppudega
                 grid.add(buttons[a][b]);
             }
         }
@@ -35,36 +42,55 @@ public class laud implements ActionListener {
         frame.setVisible(true);
     }
 
-    //miinide tekitamine lauale juhuslikult, miinide arv 10
+    //miinide tekitamine lauale juhuslikult, miinide arv 10, paneb need miinide nimekirja
 
     public void createRandomMiinid() {
         ArrayList<Integer> list = new ArrayList<Integer>();
-            for (int x = 0; x < counts.length; x++) {
-                for (int y = 0; y < counts[0].length; y++) {
-                    list.add(x * 100 + y);
-                }
+        for (int row = 0; row < counts.length; row++) {
+            for (int column = 0; column < counts[0].length; column++) {
+                list.add(row * 100 + column);
             }
+        }
         //nullimine ja tähistab miinid ning eemaldab need nuppude nimekirjast
         counts = new int[9][9];
         for (int a = 0; a < 10; a++) {
             int choice = (int) (Math.random() * list.size());
-            counts[list.get(choice) / 100][list.get(choice) % 100] = MIIN;
+            int row = list.get(choice) / 100;
+            int col = list.get(choice) % 100;
+            counts[row][col] = MIIN;
             list.remove(choice);
         }
         // mitu miini on läheduses
-        for (int x = 0; x < counts.length; x++) {
-            for (int y = 0; y < counts[0].length; y++) {
-                if (counts[x][y] != MIIN) {
+        for (int row = 0; row < counts.length; row++) {
+            for (int column = 0; column < counts[0].length; column++) {
+                if (counts[row][column] != MIIN) {
                     int neighborcount = 0;
-                    if (x > 0 && y > 0 && counts[x - 1][y - 1] == MIIN) { //vasak nurk
-                        int i = neighborcount++;
-                    }
-                    if (y > 0 && counts[x][y - 1] == MIIN) { //ülemine keskel
-                        int i=neighborcount++;
+                        if (row > 0 && column > 0 && counts[row - 1][column - 1] == MIIN) { //vasak nurk
+                            neighborcount++;
+                        }
+                        if (row > 0 && counts[row - 1][column] == MIIN) { //ylemine keskel
+                            neighborcount++;
+                        }
+                        if (row > 0 && column < counts.length - 1 && counts[row - 1][column + 1] == MIIN) { //parem nurk
+                            neighborcount++;
+                        }
+                        if (column > 0 && counts[row][column - 1] == MIIN) { //keskmine rida, vasak
+                            neighborcount++;
+                        }
+                        if (column < counts.length - 1 && counts[row][column + 1] == MIIN) { //keskmine rida, parem
+                            neighborcount++;
+                        }
+                        if (row < counts.length - 1 && column > 0 && counts[row + 1][column - 1] == MIIN) { //alumine vasak nurk
+                            neighborcount++;
+                        }
+                        if (row < counts.length - 1 && counts[row + 1][column] == MIIN) { //alumine keskmine
+                            neighborcount++;
+                        }
+                        if (row < counts.length - 1 && column < counts.length - 1 && counts[row + 1][column + 1] == MIIN) { //alumine parem nurk
+                            neighborcount++;
+                        }
 
-                    }
-
-                    counts[x][y] = neighborcount;
+                    counts[row][column] = neighborcount;
                 }
 
             }
@@ -78,92 +104,86 @@ public class laud implements ActionListener {
             return;
         }
         else {
-            int x = toClear.get(0) / 100;
-            int y = toClear.get(0) % 100;
+            int row = toClear.get(0) / 100;
+            int column = toClear.get(0) % 100;
             toClear.remove(0);
 
-            if (x > 0 && y > 0 && buttons[x-1][y-1].isEnabled()) { //yleval vasakul
-                buttons[x - 1][y - 1].setText(counts[x - 1][y - 1] + "");
-                buttons[x - 1][y - 1].setEnabled(false);
-                if (counts[x - 1][y - 1] == 0) {
-                    toClear.add((x - 1) * 100 + (y - 1));
+            if (row > 0 && column > 0 && buttons[row-1][column-1].isEnabled() && counts[row - 1][column - 1] != MIIN) { //yleval vasakul
+                buttons[row - 1][column - 1].setText(counts[row - 1][column - 1] + "");
+                buttons[row - 1][column - 1].setEnabled(false);
+                if (counts[row - 1][column - 1] == 0) {
+                    toClear.add((row - 1) * 100 + (column - 1));
 
                 }
             }
-            if (y > 0 && buttons[x][y-1].isEnabled()) { //yleval
-                buttons[x][y - 1].setText(counts[x][y - 1] + "");
-                buttons[x][y - 1].setEnabled(false);
-                if (counts[x][y - 1] == 0) {
-                    toClear.add(x * 100 + (y - 1));
+            if (column > 0 && buttons[row][column-1].isEnabled() && counts[row][column - 1] != MIIN) { //yleval keskel
+                buttons[row][column - 1].setText(counts[row][column - 1] + "");
+                buttons[row][column - 1].setEnabled(false);
+                if (counts[row][column - 1] == 0) {
+                    toClear.add(row * 100 + (column - 1));
                 }
 
             }
-            if (x < counts.length - 1 && buttons[x+1][y-1].isEnabled()) { //yleval paremal
-                buttons[x + 1][y- 1].setText(counts[x + 1][y-1] + "");
-                buttons[x + 1][y -1].setEnabled(false);
-                if (counts[x + 1][y - 1] == 0) {
-                    toClear.add((x + 1) * 100 + (y-1) );
+            if (row < counts.length - 1 && buttons[row+1][column-1].isEnabled() && counts[row + 1][column - 1] != MIIN) { //yleval paremal
+                buttons[row + 1][column- 1].setText(counts[row + 1][column-1] + "");
+                buttons[row + 1][column -1].setEnabled(false);
+                if (counts[row + 1][column - 1] == 0) {
+                    toClear.add((row + 1) * 100 + (column-1) );
                 }
             }
-            if (x > 0 && buttons[x-1][y].isEnabled()) {//vasakul
-                buttons[x - 1][y].setText(counts[x - 1][y] + "");
-                buttons[x - 1][y].setEnabled(false);
-                if (counts[x - 1][y] == 0) {
-                    toClear.add((x - 1) * 100 + y);
+            if (row > 0 && buttons[row-1][column].isEnabled() && counts[row - 1][column] != MIIN) {//vasakul
+                buttons[row - 1][column].setText(counts[row - 1][column] + "");
+                buttons[row - 1][column].setEnabled(false);
+                if (counts[row - 1][column] == 0) {
+                    toClear.add((row - 1) * 100 + column);
                 }
             }
-            if (x < counts.length - 1 && buttons[x+1][y].isEnabled()) { //paremal
-                buttons[x + 1][y].setText(counts[x + 1][y] + "");
-                buttons[x + 1][y].setEnabled(false);
-                if (counts[x + 1][y] == 0) {
-                    toClear.add((x + 1) * 100 + y);
+            if (row < counts.length - 1 && buttons[row+1][column].isEnabled() && counts[row + 1][column] != MIIN) { //paremal
+                buttons[row + 1][column].setText(counts[row + 1][column] + "");
+                buttons[row + 1][column].setEnabled(false);
+                if (counts[row + 1][column] == 0) {
+                    toClear.add((row + 1) * 100 + column);
                 }
 
             }
 
-            if (x > 0 && y < counts[0].length-1 && buttons[x-1][y+1].isEnabled()) { //all vasakul
-                buttons[x - 1][y + 1].setText(counts[x - 1][y + 1] + "");
-                buttons[x - 1][y + 1].setEnabled(false);
-                if (counts[x - 1][y + 1] == 0) {
-                    toClear.add((x + 1) * 100 + (y + 1));
+            if (row > 0 && column < counts[0].length-1 && buttons[row-1][column+1].isEnabled() && counts[row - 1][column + 1] != MIIN) { //all vasakul
+                buttons[row - 1][column + 1].setText(counts[row - 1][column + 1] + "");
+                buttons[row - 1][column + 1].setEnabled(false);
+                if (counts[row - 1][column + 1] == 0) {
+                    toClear.add((row + 1) * 100 + (column + 1));
                 }
             }
-            if (y < counts[0].length-1 && buttons[x][y+1].isEnabled()) { //all
-                buttons[x][y + 1].setText(counts[x][y + 1] + "");
-                buttons[x][y + 1].setEnabled(false);
-                if (counts[x][y + 1] == 0) {
-                    toClear.add(x * 100 + (y + 1));
+            if (column < counts[0].length-1 && buttons[row][column+1].isEnabled() && counts[row][column + 1] != MIIN) { //all
+                buttons[row][column + 1].setText(counts[row][column + 1] + "");
+                buttons[row][column + 1].setEnabled(false);
+                if (counts[row][column + 1] == 0) {
+                    toClear.add(row * 100 + (column + 1));
                 }
             }
-            if (x < counts.length - 1 && y < counts[0].length-1 && buttons[x+1][y+1].isEnabled()) { //all paremal
-                buttons[x + 1][y + 1].setText(counts[x + 1][y + 1] + "");
-                buttons[x + 1][y + 1].setEnabled(false);
-                if (counts[x + 1][y + 1] == 0) {
-                    toClear.add((x + 1) * 100 + (y + 1));
+            if (row < counts.length - 1 && column < counts[0].length-1 && buttons[row+1][column+1].isEnabled() && counts[row + 1][column + 1] != MIIN) { //all paremal
+                buttons[row + 1][column + 1].setText(counts[row + 1][column + 1] + "");
+                buttons[row + 1][column + 1].setEnabled(false);
+                if (counts[row + 1][column + 1] == 0) {
+                    toClear.add((row + 1) * 100 + (column + 1));
                 }
             }
             avada_nullid(toClear);
         }
 
-        Miin m = new Miin();
-        Miin m2 = new Miin();
-        Miin m3 = new Miin();
-        Miin m4 = new Miin();
-        m.kasSainPihta(4, 5);
-
     }
 
     public void kaotamine() {
-        for (int x = 0; x < buttons.length; x++) {
-            for (int y = 0; y < buttons[0].length; y++) {
-                if (buttons[x][y].isEnabled()) {
-                    if (counts[x][y] != MIIN) {
-                        buttons[x][y].setText(counts[x][y] + "");
-                        buttons[x][y].setEnabled(false);//kui ei ole miin, siis peab olema number
+        for (int row = 0; row < buttons.length; row++) {
+            for (int column = 0; column < buttons[0].length; column++) {
+                if (buttons[row][column].isEnabled()) {
+                    if (counts[row][column] != MIIN) {
+                        buttons[row][column].setText(counts[row][column] + "");
+                        buttons[row][column].setEnabled(false);//kui ei ole miin, siis peab olema number
                     }
-                    else { //kui ei ole ei miin, ega number
-                        buttons[x][y].setText("MIIN");
-                        buttons[x][y].setEnabled(false);
+                    else { //siis on äkki miin?
+                        buttons[row][column].setText("MIIN");
+                        buttons[row][column].setEnabled(false);
                     }
                 }
 
@@ -173,10 +193,11 @@ public class laud implements ActionListener {
 
     public void kontrollim2ngu(laud laud){
         boolean võit=true;
-        for (int x=0; x<counts.length;x++){
-            for (int y=0; y<counts[0].length; y++){
-                if (counts[x][y]!=MIIN && buttons[x][y].isEnabled()==true){
+        for (int row=0; row<counts.length;row++){
+            for (int column=0; column<counts[0].length; column++){
+                if (counts[row][column]!=MIIN && buttons[row][column].isEnabled()==true){
                     võit=false;
+                    System.out.println("Kaotasid");
                 }
             }
         }
@@ -187,38 +208,44 @@ public class laud implements ActionListener {
         }
     }
 
+
     @Override
     public void actionPerformed(ActionEvent event) {
         if (event.getSource().equals(reset)) {
-            for (int x=0; x<buttons.length; x++){
-                for(int y=0;y<buttons[0].length;y++){
-                    buttons[x][y].setEnabled(true);
-                    buttons[x][y].setText("");
+            for (int row=0; row<buttons.length; row++){
+                for(int column=0;column<buttons[0].length;column++){
+                    buttons[row][column].setEnabled(true);
+                    buttons[row][column].setText("");
+                    buttons[row][column].setBackground(null);
                     //määratakse ära mida tehakse reset nupu korral: luuakse nupud, ilma
                 }                                    //kirjata ja võimaldatakse neid uuesti avada
             }                                        //luuakse juhuslikult miinid
             createRandomMiinid();
+
         }
         else {
-            for (int x = 0; x < buttons.length; x++) { //mängu jooksul toimuvad tegevused: loeb miinid ja tekitab arvud
-                for (int y = 0; y < buttons[0].length; y++) {
-                    if (event.getSource().equals(buttons[x][y])) {
-                        if (counts[x][y] == MIIN) {
+            for (int row = 0; row < buttons.length; row++) { //mängu jooksul toimuvad tegevused: loeb miinid ja tekitab arvud
+                for (int column = 0; column < buttons[0].length; column++) {
+                    if (event.getSource().equals(buttons[row][column])) {
+                        if (counts[row][column] == MIIN) {
                             //kui juhtud miiniga ruudule
-                            buttons[x][y].setForeground(Color.red); //kuvad ruudu punasena
-                            buttons[x][y].setText("MIIN");
+                            buttons[row][column].setBackground(Color.red); //kuvad ruudu punasena
+                            buttons[row][column].setText("MIIN");
                             kaotamine();
 
-                        } else if (counts[x][y] == 0) {
-                            buttons[x][y].setText(counts[x][y] + "");
-                            buttons[x][y].setEnabled(false);
+
+                        } else if (counts[row][column] == 0) {
+                            buttons[row][column].setText(counts[row][column] + "");
+                            buttons[row][column].setEnabled(false);
                             ArrayList<Integer> toClear = new ArrayList<Integer>();
-                            toClear.add(x * 100 + y);
+                            toClear.add(row * 100 + column);
                             avada_nullid(toClear);
+                            kontrollim2ngu(this);
+
 
                         } else {
-                            buttons[x][y].setText(counts[x][y] + "");
-                            buttons[x][y].setEnabled(false);
+                            buttons[row][column].setText(counts[row][column] + "");
+                            buttons[row][column].setEnabled(false);
 
 
 
@@ -231,4 +258,37 @@ public class laud implements ActionListener {
         }
     }
 
+
+    private class MouseListKK implements MouseListener {
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent e) {
+            if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
+
+                JButton myButton = (JButton)e.getSource();
+                myButton.setBackground(Color.orange);
+            }
+        }
+
+        @Override
+        public void mousePressed(java.awt.event.MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(java.awt.event.MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(java.awt.event.MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent e) {
+
+        }
+
+    }
 }
+
