@@ -64,38 +64,41 @@ public class laud implements ActionListener {
         for (int row = 0; row < counts.length; row++) {
             for (int column = 0; column < counts[0].length; column++) {
                 if (counts[row][column] != MIIN) {
-                    int neighborcount = 0;
-                        if (row > 0 && column > 0 && counts[row - 1][column - 1] == MIIN) { //vasak nurk
-                            neighborcount++;
-                        }
-                        if (row > 0 && counts[row - 1][column] == MIIN) { //ylemine keskel
-                            neighborcount++;
-                        }
-                        if (row > 0 && column < counts.length - 1 && counts[row - 1][column + 1] == MIIN) { //parem nurk
-                            neighborcount++;
-                        }
-                        if (column > 0 && counts[row][column - 1] == MIIN) { //keskmine rida, vasak
-                            neighborcount++;
-                        }
-                        if (column < counts.length - 1 && counts[row][column + 1] == MIIN) { //keskmine rida, parem
-                            neighborcount++;
-                        }
-                        if (row < counts.length - 1 && column > 0 && counts[row + 1][column - 1] == MIIN) { //alumine vasak nurk
-                            neighborcount++;
-                        }
-                        if (row < counts.length - 1 && counts[row + 1][column] == MIIN) { //alumine keskmine
-                            neighborcount++;
-                        }
-                        if (row < counts.length - 1 && column < counts.length - 1 && counts[row + 1][column + 1] == MIIN) { //alumine parem nurk
-                            neighborcount++;
-                        }
-
-                    counts[row][column] = neighborcount;
+                    counts[row][column] = getSquareNumber(row, column);
                 }
 
             }
 
         }
+    }
+
+    private int getSquareNumber(int row, int column) {
+        int neighborcount = 0;
+        if (row > 0 && column > 0 && counts[row - 1][column - 1] == MIIN) { //vasak nurk
+            neighborcount++;
+        }
+        if (row > 0 && counts[row - 1][column] == MIIN) { //ylemine keskel
+            neighborcount++;
+        }
+        if (row > 0 && column < counts.length - 1 && counts[row - 1][column + 1] == MIIN) { //parem nurk
+            neighborcount++;
+        }
+        if (column > 0 && counts[row][column - 1] == MIIN) { //keskmine rida, vasak
+            neighborcount++;
+        }
+        if (column < counts.length - 1 && counts[row][column + 1] == MIIN) { //keskmine rida, parem
+            neighborcount++;
+        }
+        if (row < counts.length - 1 && column > 0 && counts[row + 1][column - 1] == MIIN) { //alumine vasak nurk
+            neighborcount++;
+        }
+        if (row < counts.length - 1 && counts[row + 1][column] == MIIN) { //alumine keskmine
+            neighborcount++;
+        }
+        if (row < counts.length - 1 && column < counts.length - 1 && counts[row + 1][column + 1] == MIIN) { //alumine parem nurk
+            neighborcount++;
+        }
+        return neighborcount;
     }
 
     //kuidas avada kõiki üksteise kõrval olevaid null-ruute
@@ -174,36 +177,46 @@ public class laud implements ActionListener {
     }
 
     public void kaotamine() {
+        boolean lost=false;
         for (int row = 0; row < buttons.length; row++) {
-            for (int column = 0; column < buttons[0].length; column++) {
-                if (buttons[row][column].isEnabled()) {
+            int column;
+            for (column = 0; column < buttons[0].length; column++) {
+                if (buttons[row][column].isEnabled()) {             //avamata ruudud
                     if (counts[row][column] != MIIN) {
                         buttons[row][column].setText(counts[row][column] + "");
-                        buttons[row][column].setEnabled(false);//kui ei ole miin, siis peab olema number
-                    }
-                    else { //siis on äkki miin?
-                        buttons[row][column].setText("MIIN");
+                        buttons[row][column].setEnabled(false);         //kui ei ole miin, siis peab olema number ja ava ruut
+                    } else { //siis on miin
+                        buttons[row][column].setText("MIIN");   //kirjuta et on miin ja ava ruut
                         buttons[row][column].setEnabled(false);
+                        lost=true;
                     }
                 }
 
             }
+
+        }if (lost == true) {
+            JOptionPane.showMessageDialog(frame, "Kaotasid");
         }
     }
 
     public void kontrollim2ngu(laud laud){
-        boolean võit=true;
+        boolean win=true;
+        boolean lost=false;
+        //int openedBoxCount = 0;
         for (int row=0; row<counts.length;row++){
             for (int column=0; column<counts[0].length; column++){
-                if (counts[row][column]!=MIIN && buttons[row][column].isEnabled()==true){
-                    võit=false;
-                    System.out.println("Kaotasid");
-                }
+                if (counts[row][column] != MIIN && buttons[row][column].isEnabled() == true){ //ei ole miin ja ruudud avamata
+                    win = false;
+                    //openedBoxCount++;
+
+                }if (counts[row][column] == MIIN);
+                lost=true;
             }
         }
-        if (võit==true){
-            Component frame = null;
-            JOptionPane.showMessageDialog(frame, "Sina võitsid!");
+        if (win == true && lost==false){
+            JOptionPane.showMessageDialog(frame, "Võitsid");
+        //if (openedBoxCount == 71) {
+            //Component frame = null;
 
         }
     }
@@ -224,7 +237,7 @@ public class laud implements ActionListener {
 
         }
         else {
-            for (int row = 0; row < buttons.length; row++) { //mängu jooksul toimuvad tegevused: loeb miinid ja tekitab arvud
+            for (int row = 0; row < buttons.length; row++) {        //mängu jooksul toimuvad tegevused: loeb miinid ja tekitab arvud
                 for (int column = 0; column < buttons[0].length; column++) {
                     if (event.getSource().equals(buttons[row][column])) {
                         if (counts[row][column] == MIIN) {
@@ -240,7 +253,7 @@ public class laud implements ActionListener {
                             ArrayList<Integer> toClear = new ArrayList<Integer>();
                             toClear.add(row * 100 + column);
                             avada_nullid(toClear);
-                            kontrollim2ngu(this);
+
 
 
                         } else {
@@ -250,6 +263,7 @@ public class laud implements ActionListener {
 
 
                         }
+                        kontrollim2ngu(this);
                     }
 
 
@@ -265,7 +279,14 @@ public class laud implements ActionListener {
             if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
 
                 JButton myButton = (JButton)e.getSource();
-                myButton.setBackground(Color.orange);
+                if (myButton.getBackground()==Color.orange) {
+                    myButton.setBackground(null);
+                }
+                else {
+                    myButton.setBackground(Color.orange);
+
+                }
+
             }
         }
 
