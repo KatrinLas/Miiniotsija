@@ -202,18 +202,22 @@ public class laud implements ActionListener {
     public void kontrollim2ngu(laud laud){
         boolean win=true;
         boolean lost=false;
-        //int openedBoxCount = 0;
+        int openedBoxCount = 0;
         for (int row=0; row<counts.length;row++){
             for (int column=0; column<counts[0].length; column++){
                 if (counts[row][column] != MIIN && buttons[row][column].isEnabled() == true){ //ei ole miin ja ruudud avamata
                     win = false;
-                    //openedBoxCount++;
+                    openedBoxCount++;
 
                 }if (counts[row][column] == MIIN);
-                lost=true;
+                    lost=true;
+
+                if (openedBoxCount==71){
+                    win=true;
+                }
             }
         }
-        if (win == true && lost==false){
+        if (win == true){
             JOptionPane.showMessageDialog(frame, "Võitsid");
         //if (openedBoxCount == 71) {
             //Component frame = null;
